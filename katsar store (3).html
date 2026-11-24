@@ -1,0 +1,874 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>katsar store</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Tajawal:wght@400;500;700&display=swap">
+<style>
+/* Layout: sticky slim header, type-led hero with location plate, filterable product grid, location block */
+:root {
+  --bg: #edf0f1;
+  --surface: #ffffff;
+  --ink: #12202a;
+  --muted: #566772;
+  --line: #d3dbe0;
+  --accent: #1f5a6e;
+  --accent-ink: #ffffff;
+  --brass: #b0862f;
+  --tone-1: #cfdde3;
+  --tone-2: #dcd6c8;
+  --tone-3: #c5cfc9;
+  --tone-4: #d7d0d8;
+  --font-display: "Reem Kufi", "Tajawal", system-ui, sans-serif;
+  --font-body: "Tajawal", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f181e;
+    --surface: #17232b;
+    --ink: #e8eef1;
+    --muted: #96a8b2;
+    --line: #2a3a44;
+    --accent: #6db3c7;
+    --accent-ink: #0b1519;
+    --brass: #d3aa57;
+    --tone-1: #22343e;
+    --tone-2: #2f2d27;
+    --tone-3: #25302b;
+    --tone-4: #2d2832;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f181e;
+  --surface: #17232b;
+  --ink: #e8eef1;
+  --muted: #96a8b2;
+  --line: #2a3a44;
+  --accent: #6db3c7;
+  --accent-ink: #0b1519;
+  --brass: #d3aa57;
+  --tone-1: #22343e;
+  --tone-2: #2f2d27;
+  --tone-3: #25302b;
+  --tone-4: #2d2832;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 40px;
+}
+.page { max-width: 1080px; margin: 0 auto; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+header.bar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 5;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding-block: 12px;
+  margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding-inline: max(16px, env(safe-area-inset-left, 0px));
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.brand { display: flex; align-items: center; gap: 10px; }
+.mark { width: 38px; height: 38px; border: 2px solid var(--brass); background: #12202a; color: #e8eef1; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; line-height: 1; }
+.brand-text { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; letter-spacing: .2em; direction: ltr; }
+.brand-text span { color: var(--brass); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--font-body); font-weight: 700; font-size: 1rem;
+  padding: 10px 20px; border-radius: 6px; border: 1.5px solid var(--accent);
+  background: var(--accent); color: var(--accent-ink); text-decoration: none; cursor: pointer;
+}
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn:hover { filter: brightness(1.08); }
+
+.hero { margin-block: 24px 16px; display: flex; flex-direction: row; background: #12202a; color: #e8eef1; overflow: hidden; }
+.hero-main { flex: 1; min-width: 0; padding: 40px 44px; display: flex; flex-direction: column; gap: 14px; }
+.hero .kick { font-family: var(--font-display); font-weight: 700; letter-spacing: .22em; color: #d3aa57; direction: ltr; text-align: right; font-size: .95rem; }
+.hero h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(3.6rem, 13vw, 8.5rem); line-height: 1; margin: 0; }
+.hero .tag { font-size: clamp(1.2rem, 3vw, 1.7rem); font-weight: 500; margin: 0; }
+.hero p.lead { color: #96a8b2; font-size: 1.05rem; max-width: 30em; margin: 0; }
+.hero .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.hero .btn { background: #d3aa57; border-color: #d3aa57; color: #12202a; }
+.hero .btn.ghost { background: transparent; color: #e8eef1; border-color: #e8eef1; }
+.hero-side { width: 38%; flex-shrink: 0; padding: 32px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.09) 0 1px, transparent 1px 22px), #1f5a6e; color: #fff; }
+.hero-side svg { width: min(100%, 220px); height: auto; align-self: center; }
+.plate { border-top: 2px solid #e8eef1; padding-top: 16px; display: grid; gap: 4px; }
+.plate small { font-size: .95rem; }
+.plate strong { font-family: var(--font-display); font-size: 1.6rem; line-height: 1.3; }
+
+section { padding-block: 32px; }
+h2 { font-family: var(--font-display); font-size: 1.9rem; margin: 0 0 6px; }
+.sub { color: var(--muted); margin: 0 0 20px; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 14px; }
+.search { display: block; flex: 1 1 220px; max-width: 420px; min-width: 0; font: inherit; padding: 10px 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 6px; }
+.fsel { display: grid; gap: 2px; font-size: .82rem; color: var(--muted); }
+.fsel select { font: inherit; padding: 9px 10px; min-width: 110px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 6px; }
+.opts { display: grid; gap: 6px; }
+.opt-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.opt-label { font-size: .82rem; color: var(--muted); min-width: 44px; }
+.opt { font: inherit; font-size: .88rem; min-width: 38px; min-height: 36px; padding: 2px 10px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 4px; cursor: pointer; }
+.opt[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.chip { font: inherit; font-weight: 500; padding: 6px 16px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); }
+.card { background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; min-width: 0; }
+.card .shot { aspect-ratio: 4 / 3; max-width: 100%; display: grid; place-items: center; position: relative; }
+.card .shot svg { width: 46%; height: auto; color: var(--ink); opacity: .55; }
+.card .shot .tag { position: absolute; inset-block-start: 8px; inset-inline-start: 8px; font-size: .75rem; background: var(--bg); padding: 0 8px; border-radius: 3px; color: var(--muted); }
+.t1 { background: var(--tone-1); } .t2 { background: var(--tone-2); } .t3 { background: var(--tone-3); } .t4 { background: var(--tone-4); }
+.card .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.card h3 { margin: 0; font-size: 1.1rem; }
+.card .meta { color: var(--muted); font-size: .92rem; margin: 0; }
+.card .btn { margin-top: auto; padding: 8px 14px; font-size: .95rem; }
+.empty-note { margin-top: 18px; color: var(--muted); font-size: .95rem; border-top: 1px solid var(--line); padding-top: 14px; }
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.btn.small { padding: 6px 12px; font-size: .88rem; }
+.card .shot { overflow: hidden; }
+.card .shot img { width: 100%; height: 100%; object-fit: cover; opacity: 1; display: block; }
+.card .tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.admin-bar { border: 1.5px dashed var(--accent); padding: 10px 14px; margin-bottom: 16px; color: var(--ink); background: var(--surface); }
+.admin-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.pform { display: grid; gap: 10px; margin-top: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); align-items: end; }
+.pform label { display: grid; gap: 4px; font-size: .9rem; color: var(--muted); min-width: 0; }
+.pform input, .pform select { font: inherit; padding: 8px 10px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 4px; min-width: 0; }
+.badge { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: .8rem; margin-inline-start: 6px; font-variant-numeric: tabular-nums; }
+.cart-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .45); z-index: 20; }
+.cart { position: fixed; z-index: 21; inset-block: 0; inset-inline-end: 0; width: min(100%, 400px); background: var(--surface); color: var(--ink); border-inline-start: 1px solid var(--line); display: flex; flex-direction: column; gap: 14px; padding-top: calc(16px + env(safe-area-inset-top, 0px)); padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); overflow-y: auto; }
+.cart-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cart-head h2 { font-size: 1.4rem; margin: 0; }
+.cart-list { display: grid; gap: 10px; }
+.cart-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+.cart-item .nm { font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+.cart-item .ct { color: var(--muted); font-size: .88rem; }
+.qty { display: inline-flex; align-items: center; gap: 6px; }
+.qty button { min-width: 36px; height: 36px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: 1.1rem; cursor: pointer; border-radius: 4px; padding: 0 8px; }
+.qty span { min-width: 24px; text-align: center; font-variant-numeric: tabular-nums; }
+.cart-empty { color: var(--muted); margin: 0; }
+.cart-note { display: grid; gap: 4px; font-size: .9rem; color: var(--muted); }
+.cart-note textarea { font: inherit; padding: 8px 10px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 4px; resize: vertical; min-width: 0; }
+.cart-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.toast { position: fixed; z-index: 22; inset-inline: 0; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); margin-inline: auto; width: fit-content; max-width: calc(100% - 32px); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 6px; }
+
+.where { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); border-top: 1.5px solid var(--ink); padding-top: 28px; }
+.where dl { margin: 0; display: grid; gap: 14px; }
+.where dt { color: var(--muted); font-size: .88rem; letter-spacing: .03em; }
+.where dd { margin: 0; font-size: 1.15rem; font-weight: 500; }
+footer { color: var(--muted); font-size: .9rem; padding-top: 24px; border-top: 1px solid var(--line); margin-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 720px) {
+  .hero { flex-direction: column; }
+  .hero-main { padding: 28px 22px; }
+  .hero-side { width: auto; padding: 24px 22px; }
+  .hero-side svg { width: 140px; }
+  .brand { font-size: 1.15rem; }
+  header .btn { padding: 8px 14px; font-size: .92rem; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card { transition: transform .15s ease; }
+  .card:hover { transform: translateY(-2px); }
+}
+</style>
+
+<div class="page" dir="rtl" lang="ar">
+  <header class="bar">
+    <div class="brand"><div class="mark" aria-hidden="true">ك</div><div class="brand-text">KATSAR <span>STORE</span></div></div>
+    <div class="header-actions">
+      <button class="btn ghost" id="cart-toggle" type="button">السلة <span class="badge" id="cart-count">0</span></button>
+      <button class="btn ghost" id="admin-toggle" type="button" hidden>إدارة المتجر</button>
+      <a class="btn" id="wa-top" href="#" target="_blank" rel="noopener">اطلب عبر واتساب</a>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-main">
+      <div class="kick">KATSAR STORE</div>
+      <h1>كاتسار</h1>
+      <p class="tag">لبس رجالي مرتب، بقصّات عملية.</p>
+      <p class="lead">قمصان وبناطيل وجاكيتات وأحذية وإكسسوارات. اختار القطعة واطلبها على واتساب.</p>
+      <div class="actions">
+        <a class="btn" id="wa-hero" href="#" target="_blank" rel="noopener">اطلب عبر واتساب</a>
+        <a class="btn ghost" href="#products">شوف المنتجات</a>
+      </div>
+    </div>
+    <div class="hero-side">
+      <svg viewBox="0 0 64 64" fill="none" stroke="#e8eef1" stroke-width="1.3" stroke-linejoin="round" aria-hidden="true"><path d="M24 6l-14 8-4 36 10 2V26l8 30h16l8-30v26l10-2-4-36-14-8-8 14z"/><path d="M32 20v36"/><path d="M24 6l8 14 8-14"/></svg>
+      <div class="plate">
+        <small>موقع المتجر</small>
+        <strong>زيتا، الحارة الغربية</strong>
+        <span>طولكرم، فلسطين</span>
+      </div>
+    </div>
+  </div>
+
+  <section id="products" aria-labelledby="h-products">
+    <h2 id="h-products">المنتجات</h2>
+    <p class="sub">اختار القسم، واضغط «اطلب» لتوصلنا رسالة جاهزة على واتساب فيها اسم القطعة.</p>
+    <div class="filters">
+      <input class="search" id="search" type="search" placeholder="ابحث عن قطعة، مثلاً: جاكيت" aria-label="ابحث عن قطعة" autocomplete="off">
+      <label class="fsel">اللون<select id="f-color"><option value="">الكل</option></select></label>
+      <label class="fsel">المقاس<select id="f-size"><option value="">الكل</option></select></label>
+    </div>
+    <div class="chips" role="group" aria-label="أقسام المتجر">
+      <button class="chip" type="button" data-cat="all" aria-pressed="true">الكل</button>
+      <button class="chip" type="button" data-cat="shirts" aria-pressed="false">قمصان</button>
+      <button class="chip" type="button" data-cat="tops" aria-pressed="false">بلايز</button>
+      <button class="chip" type="button" data-cat="pants" aria-pressed="false">بناطيل</button>
+      <button class="chip" type="button" data-cat="jackets" aria-pressed="false">جاكيتات وبلوفرات</button>
+      <button class="chip" type="button" data-cat="shoes" aria-pressed="false">أحذية</button>
+      <button class="chip" type="button" data-cat="acc" aria-pressed="false">إكسسوارات</button>
+    </div>
+    <div class="admin-bar" id="admin-bar" hidden>
+      <div id="admin-status" role="status"></div>
+      <div class="admin-actions"><button class="btn small" id="add-product" type="button">إضافة قطعة</button></div>
+      <form class="pform" id="product-form" hidden>
+        <label>اسم القطعة<input id="pf-name" type="text" maxlength="60" required></label>
+        <label>القسم<select id="pf-cat"></select></label>
+        <label>وصف قصير<input id="pf-meta" type="text" maxlength="80"></label>
+        <label>الألوان (افصل بفاصلة)<input id="pf-colors" type="text" maxlength="120"></label>
+        <label>المقاسات أو النمر (افصل بفاصلة)<input id="pf-sizes" type="text" maxlength="120"></label>
+        <div class="admin-actions"><button class="btn small" type="submit">حفظ</button><button class="btn ghost small" id="pf-cancel" type="button">إلغاء</button></div>
+      </form>
+    </div>
+    <div class="grid" id="grid"></div>
+    <p class="empty-note">اسأل عبر واتساب عن المقاسات والألوان والأسعار المتوفرة حالياً.</p>
+  </section>
+
+  <section id="where" aria-labelledby="h-where">
+    <h2 id="h-where">وين نحن</h2>
+    <div class="where">
+      <dl>
+        <div><dt>الاسم</dt><dd>katsar store</dd></div>
+        <div><dt>العنوان</dt><dd>زيتا، الحارة الغربية، طولكرم</dd></div>
+        <div><dt>للطلب والاستفسار</dt><dd>راسلنا على واتساب</dd></div>
+      </dl>
+      <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start;justify-content:center">
+        <a class="btn" id="wa-bottom" href="#" target="_blank" rel="noopener">راسلنا على واتساب</a>
+        <a class="btn ghost" href="https://www.google.com/maps/search/?api=1&query=%D8%B2%D9%8A%D8%AA%D8%A7+%D8%A7%D9%84%D8%AD%D8%A7%D8%B1%D8%A9+%D8%A7%D9%84%D8%BA%D8%B1%D8%A8%D9%8A%D8%A9+%D8%B7%D9%88%D9%84%D9%83%D8%B1%D9%85" target="_blank" rel="noopener">افتح الموقع على الخريطة</a>
+      </div>
+    </div>
+    <footer><span>katsar store · زيتا، طولكرم</span><span>ملابس رجالية</span></footer>
+  </section>
+
+  <div class="cart-backdrop" id="cart-backdrop" hidden></div>
+  <aside class="cart" id="cart" aria-label="سلة الطلب" hidden>
+    <div class="cart-head"><h2>سلة الطلب</h2><button class="btn ghost small" id="cart-close" type="button">إغلاق</button></div>
+    <div class="cart-list" id="cart-list"></div>
+    <label class="cart-note">المقاسات والألوان والملاحظات<textarea id="cart-note" rows="3" maxlength="400"></textarea></label>
+    <div class="cart-foot">
+      <a class="btn" id="cart-send" href="#" target="_blank" rel="noopener">أرسل الطلب عبر واتساب</a>
+      <button class="btn ghost small" id="cart-clear" type="button">تفريغ السلة</button>
+    </div>
+  </aside>
+  <div class="toast" id="toast" role="status" hidden></div>
+</div>
+
+<script>
+// ضع رقم واتساب هنا بالصيغة الدولية بدون + أو أصفار، مثال: 970599123456
+var WA_NUMBER = "972569158509";
+
+var ICONS = {
+  tops: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M22 8L6 20l6 10 8-5v31h24V25l8 5 6-10-16-12c-2 4-6 6-10 6s-8-2-10-6z"/><path d="M20 50h24"/></svg>',
+  shirts: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M22 8l-14 8 6 12 8-4v28h24V24l8 4 6-12-14-8c-2 5-6 7-10 7s-8-2-10-7z"/></svg>',
+  pants: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M18 6h28l4 52H36l-4-34-4 34H14z"/><path d="M18 14h28"/></svg>',
+  jackets: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M24 6l-14 8-4 36 10 2V26l8 30h16l8-30v26l10-2-4-36-14-8-8 14z"/><path d="M32 20v36"/></svg>',
+  shoes: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M6 40c0-6 4-8 8-8l10-12 6 6c4 4 12 4 18 8 4 2 6 4 6 8v4H6z"/><path d="M6 48h52"/></svg>',
+  acc: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><rect x="4" y="26" width="56" height="12" rx="2"/><rect x="26" y="23" width="12" height="18" rx="2"/><path d="M12 32h8M44 32h8"/></svg>'
+};
+var PRODUCTS = [
+  { cat: "shirts", name: "قميص أكسفورد", meta: "قطن، للدوام والمناسبات", tone: "t1" },
+  { cat: "shirts", name: "قميص كتان صيفي", meta: "خفيف، كم طويل أو قصير", tone: "t3" },
+  { cat: "shirts", name: "تيشيرت قطن", meta: "قصّة عادية بعدة ألوان", tone: "t2" },
+  { cat: "pants", name: "بنطلون قماش", meta: "قصّة مستقيمة", tone: "t2" },
+  { cat: "pants", name: "بنطلون جينز", meta: "أزرق وأسود، مقاسات متنوعة", tone: "t1" },
+  { cat: "pants", name: "بنطلون كارجو", meta: "جيوب جانبية، للاستخدام اليومي", tone: "t3" },
+  { cat: "jackets", name: "جاكيت شتوي", meta: "بطانة دافئة لشتا طولكرم", tone: "t4" },
+  { cat: "jackets", name: "جاكيت جلد", meta: "قصّة كاجوال", tone: "t2" },
+  { cat: "jackets", name: "بلوفر صوف", meta: "رقبة دائرية أو سحاب", tone: "t3" },
+  { cat: "shoes", name: "حذاء كلاسيك جلد", meta: "للمناسبات والدوام", tone: "t2" },
+  { cat: "shoes", name: "حذاء رياضي", meta: "خفيف ومريح", tone: "t1" },
+  { cat: "shoes", name: "بوط شتوي", meta: "للمطر والبرد", tone: "t4" },
+  { cat: "acc", name: "حزام جلد", meta: "عدة مقاسات", tone: "t4" },
+  { cat: "acc", name: "شال وقبعة صوف", meta: "قطع الشتاء", tone: "t3" },
+  { cat: "tops", name: "بلوزة قطن", meta: "رقبة دائرية بعدة ألوان", tone: "t1" },
+  { cat: "tops", name: "بلوزة هودي", meta: "قطعة دافئة للشتا", tone: "t4" }
+];
+var DEF_SIZES = {
+  shirts: ["S", "M", "L", "XL", "XXL"],
+  tops: ["S", "M", "L", "XL", "XXL"],
+  jackets: ["S", "M", "L", "XL", "XXL"],
+  pants: ["30", "32", "34", "36", "38", "40"],
+  shoes: ["40", "41", "42", "43", "44", "45"],
+  acc: []
+};
+var DEF_COLORS = {
+  shirts: ["أبيض", "أسود", "كحلي", "سماوي"],
+  tops: ["أسود", "رمادي", "كحلي", "أبيض"],
+  jackets: ["أسود", "كحلي", "بني", "زيتي"],
+  pants: ["أسود", "كحلي", "رمادي", "بيج"],
+  shoes: ["أسود", "بني", "أبيض"],
+  acc: ["أسود", "بني", "رمادي"]
+};
+PRODUCTS.forEach(function (p, i) { p.id = "p" + (i + 1); p.sizes = DEF_SIZES[p.cat]; p.colors = DEF_COLORS[p.cat]; });
+var CATNAME = { shirts: "قمصان", tops: "بلايز", pants: "بناطيل", jackets: "جاكيتات وبلوفرات", shoes: "أحذية", acc: "إكسسوارات" };
+
+function waLink(text) {
+  var q = "text=" + encodeURIComponent(text);
+  return WA_NUMBER ? "https://wa.me/" + WA_NUMBER + "?" + q : "https://wa.me/?" + q;
+}
+var currentCat = "all";
+var IMAGES = {};
+var OVERRIDES = {};
+var editingId = null;
+var pendingDelete = null;
+var TONES = ["t1", "t2", "t3", "t4"];
+var searchTerm = "";
+var SEL = {};
+var SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+var adminOn = false;
+var assetsApi = null;
+var dbApi = null;
+
+function setStatus(t) { document.getElementById("admin-status").textContent = t; }
+
+function shrink(file) {
+  return new Promise(function (resolve, reject) {
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function () {
+      var k = Math.min(1, 1200 / Math.max(img.naturalWidth, img.naturalHeight));
+      var c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(img.naturalWidth * k));
+      c.height = Math.max(1, Math.round(img.naturalHeight * k));
+      var ctx = c.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      c.toBlob(function (b) { if (b) { resolve(b); } else { reject({ code: "invalid_request" }); } }, "image/jpeg", 0.85);
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); reject({ code: "invalid_request" }); };
+    img.src = url;
+  });
+}
+
+function uploadFor(p, file) {
+  if (!assetsApi || !dbApi) { setStatus("رفع الصور مش متاح هلأ. افتح الصفحة من حسابك وأعد المحاولة."); return; }
+  setStatus("جاري رفع صورة " + p.name + "...");
+  shrink(file).then(function (blob) {
+    return assetsApi.upload(blob, { type: "image/jpeg" });
+  }).then(function (res) {
+    return dbApi.doc("productImages/" + p.id).set({ assetId: res.id, name: p.name });
+  }).then(function () {
+    setStatus("انحفظت صورة " + p.name + ".");
+  }).catch(function (e) {
+    setStatus("ما انحفظت الصورة (" + ((e && e.code) || "خطأ") + "). جرّب صورة ثانية أو أعد المحاولة.");
+  });
+}
+
+function removeFor(p) {
+  var id = IMAGES[p.id];
+  if (!id || !dbApi) { return; }
+  dbApi.doc("productImages/" + p.id).delete().then(function () {
+    if (assetsApi) { return assetsApi.delete(id); }
+  }).then(function () {
+    setStatus("انحذفت صورة " + p.name + ".");
+  }).catch(function (e) {
+    setStatus("ما انحذفت الصورة (" + ((e && e.code) || "خطأ") + ").");
+  });
+}
+
+var CART = {};
+var cartNote = "";
+var toastTimer = null;
+
+function loadCart() {
+  try {
+    var s = localStorage.getItem("katsar-cart");
+    if (!s) { return; }
+    var o = JSON.parse(s);
+    var clean = {};
+    Object.keys(o || {}).forEach(function (id) {
+      var c = o[id];
+      if (c && typeof c.name === "string" && typeof c.cat === "string" && Math.floor(c.qty) === c.qty && c.qty > 0 && c.qty <= 20) {
+        clean[id] = {
+          name: c.name.slice(0, 60),
+          cat: c.cat,
+          qty: c.qty,
+          color: typeof c.color === "string" ? c.color.slice(0, 20) : "",
+          size: typeof c.size === "string" ? c.size.slice(0, 20) : ""
+        };
+      }
+    });
+    CART = clean;
+  } catch (e) { CART = {}; }
+}
+function saveCart() {
+  try { localStorage.setItem("katsar-cart", JSON.stringify(CART)); } catch (e) {}
+}
+function cartCount() {
+  return Object.keys(CART).reduce(function (n, id) { return n + CART[id].qty; }, 0);
+}
+function toast(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.hidden = true; }, 2200);
+}
+function addToCart(p) {
+  var sel = SEL[p.id] || { color: "", size: "" };
+  if (p.sizes.length && !sel.size) { toast("اختار المقاس أول"); return; }
+  if (p.colors.length && !sel.color) { toast("اختار اللون أول"); return; }
+  var key = p.id + "|" + sel.color + "|" + sel.size;
+  var c = CART[key];
+  if (c) { c.qty = Math.min(20, c.qty + 1); } else { CART[key] = { name: p.name, cat: p.cat, qty: 1, color: sel.color, size: sel.size }; }
+  saveCart();
+  renderCart();
+  toast("انضافت «" + p.name + "» للسلة");
+}
+function changeQty(id, d) {
+  var c = CART[id];
+  if (!c) { return; }
+  c.qty = Math.min(20, c.qty + d);
+  if (c.qty <= 0) { delete CART[id]; }
+  saveCart();
+  renderCart();
+}
+function removeItem(id) {
+  delete CART[id];
+  saveCart();
+  renderCart();
+}
+function cartMessage() {
+  var lines = ["مرحباً katsar store، بدي أطلب:"];
+  Object.keys(CART).forEach(function (id) {
+    var c = CART[id];
+    var det = [];
+    if (c.color) { det.push("اللون: " + c.color); }
+    if (c.size) { det.push("المقاس: " + c.size); }
+    lines.push("- " + c.name + " (" + (CATNAME[c.cat] || "") + ")" + (det.length ? " - " + det.join("، ") : "") + " × " + c.qty);
+  });
+  var note = cartNote.trim();
+  if (note) { lines.push("ملاحظات: " + note); }
+  return lines.join("\n");
+}
+function mkBtn(text, label, fn) {
+  var b = document.createElement("button");
+  b.type = "button";
+  b.textContent = text;
+  b.setAttribute("aria-label", label);
+  b.addEventListener("click", fn);
+  return b;
+}
+function renderCart() {
+  var ids = Object.keys(CART);
+  document.getElementById("cart-count").textContent = String(cartCount());
+  var list = document.getElementById("cart-list");
+  list.innerHTML = "";
+  if (!ids.length) {
+    var e = document.createElement("p");
+    e.className = "cart-empty";
+    e.textContent = "السلة فاضية. اضغط «أضف للسلة» على أي قطعة.";
+    list.appendChild(e);
+  }
+  ids.forEach(function (id) {
+    var c = CART[id];
+    var row = document.createElement("div");
+    row.className = "cart-item";
+    var left = document.createElement("div");
+    var nm = document.createElement("div");
+    nm.className = "nm";
+    nm.textContent = c.name;
+    var ct = document.createElement("div");
+    ct.className = "ct";
+    ct.textContent = [CATNAME[c.cat] || "", c.color || "", c.size ? "مقاس " + c.size : ""].filter(Boolean).join(" · ");
+    left.appendChild(nm);
+    left.appendChild(ct);
+    var q = document.createElement("div");
+    q.className = "qty";
+    var n = document.createElement("span");
+    n.textContent = String(c.qty);
+    q.appendChild(mkBtn("−", "تقليل الكمية", function () { changeQty(id, -1); }));
+    q.appendChild(n);
+    q.appendChild(mkBtn("+", "زيادة الكمية", function () { changeQty(id, 1); }));
+    q.appendChild(mkBtn("حذف", "حذف من السلة", function () { removeItem(id); }));
+    row.appendChild(left);
+    row.appendChild(q);
+    list.appendChild(row);
+  });
+  var send = document.getElementById("cart-send");
+  send.hidden = !ids.length;
+  document.getElementById("cart-clear").hidden = !ids.length;
+  if (ids.length) { send.href = waLink(cartMessage()); }
+}
+function openCart(open) {
+  document.getElementById("cart").hidden = !open;
+  document.getElementById("cart-backdrop").hidden = !open;
+  if (open) { document.getElementById("cart-close").focus(); }
+}
+function wireCart() {
+  document.getElementById("cart-toggle").addEventListener("click", function () { openCart(true); });
+  document.getElementById("cart-close").addEventListener("click", function () { openCart(false); });
+  document.getElementById("cart-backdrop").addEventListener("click", function () { openCart(false); });
+  document.getElementById("cart-clear").addEventListener("click", function () {
+    CART = {};
+    saveCart();
+    renderCart();
+  });
+  document.getElementById("cart-note").addEventListener("input", function (ev) {
+    cartNote = ev.target.value;
+    renderCart();
+  });
+  document.getElementById("f-color").addEventListener("change", function () { render(); });
+  document.getElementById("f-size").addEventListener("change", function () { render(); });
+  document.getElementById("search").addEventListener("input", function (ev) {
+    searchTerm = ev.target.value;
+    render();
+  });
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key === "Escape") { openCart(false); }
+  });
+}
+
+function optList(v, d) {
+  if (!Array.isArray(v)) { return d; }
+  return v.filter(function (x) { return typeof x === "string" && x; }).slice(0, 12);
+}
+function parseList(s) {
+  return s.split(/[,،]/).map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 12);
+}
+function sizeRank(s) {
+  var n = parseFloat(s);
+  if (!isNaN(n)) { return n; }
+  var i = SIZE_ORDER.indexOf(String(s).toUpperCase());
+  return i === -1 ? 1000 : 100 + i;
+}
+function fillSelect(id, vals) {
+  var s = document.getElementById(id);
+  var cur = s.value;
+  s.innerHTML = "";
+  var all = document.createElement("option");
+  all.value = "";
+  all.textContent = "الكل";
+  s.appendChild(all);
+  vals.forEach(function (v) {
+    var o = document.createElement("option");
+    o.value = v;
+    o.textContent = v;
+    s.appendChild(o);
+  });
+  s.value = vals.indexOf(cur) !== -1 ? cur : "";
+}
+function buildFilters() {
+  var cs = {};
+  var ss = {};
+  allProducts().forEach(function (p) {
+    p.colors.forEach(function (c) { cs[c] = 1; });
+    p.sizes.forEach(function (s) { ss[s] = 1; });
+  });
+  fillSelect("f-color", Object.keys(cs));
+  fillSelect("f-size", Object.keys(ss).sort(function (a, b) { return sizeRank(a) - sizeRank(b) || a.localeCompare(b); }));
+}
+function matchesOpts(p) {
+  var fc = document.getElementById("f-color").value;
+  var fs = document.getElementById("f-size").value;
+  return (!fc || p.colors.indexOf(fc) !== -1) && (!fs || p.sizes.indexOf(fs) !== -1);
+}
+function optGroup(sel, label, list, key) {
+  var row = document.createElement("div");
+  row.className = "opt-row";
+  var lb = document.createElement("span");
+  lb.className = "opt-label";
+  lb.textContent = label;
+  row.appendChild(lb);
+  var btns = [];
+  list.forEach(function (v) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "opt";
+    b.textContent = v;
+    b.setAttribute("aria-pressed", sel[key] === v ? "true" : "false");
+    b.addEventListener("click", function () {
+      sel[key] = (sel[key] === v) ? "" : v;
+      btns.forEach(function (x) { x.setAttribute("aria-pressed", sel[key] === x.textContent ? "true" : "false"); });
+    });
+    btns.push(b);
+    row.appendChild(b);
+  });
+  return row;
+}
+
+function norm(s) {
+  return String(s).toLowerCase().replace(/[ً-ٰٟ]/g, "").replace(/[أإآ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").trim();
+}
+function matchesSearch(p) {
+  var q = norm(searchTerm);
+  if (!q) { return true; }
+  return norm(p.name + " " + p.meta + " " + CATNAME[p.cat]).indexOf(q) !== -1;
+}
+
+function allProducts() {
+  var out = [];
+  var baseIds = {};
+  PRODUCTS.forEach(function (p) {
+    baseIds[p.id] = true;
+    var o = OVERRIDES[p.id];
+    if (o && o.deleted) { return; }
+    if (o) {
+      out.push({ id: p.id, cat: CATNAME[o.cat] ? o.cat : p.cat, name: o.name || p.name, meta: (typeof o.meta === "string") ? o.meta : p.meta, tone: p.tone, colors: optList(o.colors, p.colors), sizes: optList(o.sizes, p.sizes) });
+    } else {
+      out.push(p);
+    }
+  });
+  Object.keys(OVERRIDES).filter(function (id) {
+    var o = OVERRIDES[id];
+    return !baseIds[id] && o && !o.deleted && o.name && CATNAME[o.cat];
+  }).sort(function (a, b) {
+    return (OVERRIDES[a].createdAt || 0) - (OVERRIDES[b].createdAt || 0);
+  }).forEach(function (id, i) {
+    var o = OVERRIDES[id];
+    out.push({ id: id, cat: o.cat, name: o.name, meta: o.meta || "", tone: TONES[i % TONES.length], colors: optList(o.colors, DEF_COLORS[o.cat] || []), sizes: optList(o.sizes, DEF_SIZES[o.cat] || []) });
+  });
+  return out;
+}
+
+function openForm(p) {
+  editingId = p ? p.id : null;
+  document.getElementById("pf-name").value = p ? p.name : "";
+  document.getElementById("pf-cat").value = p ? p.cat : (currentCat !== "all" ? currentCat : "shirts");
+  document.getElementById("pf-meta").value = p ? p.meta : "";
+  var fc = document.getElementById("pf-cat").value;
+  document.getElementById("pf-colors").value = (p ? p.colors : (DEF_COLORS[fc] || [])).join("، ");
+  document.getElementById("pf-sizes").value = (p ? p.sizes : (DEF_SIZES[fc] || [])).join("، ");
+  document.getElementById("product-form").hidden = false;
+  document.getElementById("pf-name").focus();
+}
+
+function saveProduct(e) {
+  e.preventDefault();
+  if (!dbApi) { setStatus("الحفظ مش متاح هلأ. افتح الصفحة من حسابك وأعد المحاولة."); return; }
+  var name = document.getElementById("pf-name").value.trim();
+  if (!name) { return; }
+  var data = {
+    name: name,
+    cat: document.getElementById("pf-cat").value,
+    meta: document.getElementById("pf-meta").value.trim(),
+    colors: parseList(document.getElementById("pf-colors").value),
+    sizes: parseList(document.getElementById("pf-sizes").value)
+  };
+  var id = editingId;
+  var op;
+  if (id && OVERRIDES[id]) {
+    op = dbApi.doc("products/" + id).update(data);
+  } else {
+    if (!id) { id = "n" + Date.now(); data.createdAt = Date.now(); }
+    op = dbApi.doc("products/" + id).set(data);
+  }
+  op.then(function () {
+    document.getElementById("product-form").hidden = true;
+    editingId = null;
+    setStatus("انحفظت القطعة «" + name + "». ضيف لها صورة من «رفع صورة» تحتها.");
+  }).catch(function (err) {
+    setStatus("ما انحفظت القطعة (" + ((err && err.code) || "خطأ") + "). أعد المحاولة.");
+  });
+}
+
+function deleteProduct(p) {
+  if (!dbApi) { return; }
+  pendingDelete = null;
+  var isBase = PRODUCTS.some(function (b) { return b.id === p.id; });
+  var op = isBase ? dbApi.doc("products/" + p.id).set({ deleted: true }) : dbApi.doc("products/" + p.id).delete();
+  op.then(function () {
+    if (IMAGES[p.id]) { removeFor(p); } else { setStatus("انحذفت القطعة «" + p.name + "»."); }
+  }).catch(function (err) {
+    setStatus("ما انحذفت القطعة (" + ((err && err.code) || "خطأ") + ").");
+  });
+}
+
+function render(cat) {
+  if (cat) { currentCat = cat; }
+  var grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  allProducts().filter(function (p) { return (currentCat === "all" || p.cat === currentCat) && matchesSearch(p) && matchesOpts(p); }).forEach(function (p) {
+    var card = document.createElement("article");
+    card.className = "card";
+    var imgId = IMAGES[p.id];
+    var shotInner = imgId ? '<img loading="lazy" alt="">' : ICONS[p.cat] + '<span class="tag">نموذج</span>';
+    card.innerHTML =
+      '<div class="shot ' + p.tone + '">' + shotInner + '</div>' +
+      '<div class="body"><h3></h3><p class="meta"></p>' +
+      '<button class="btn add-cart" type="button">أضف للسلة</button></div>';
+    card.querySelector("h3").textContent = p.name;
+    card.querySelector(".meta").textContent = p.meta;
+    var psel = SEL[p.id] || (SEL[p.id] = { color: "", size: "" });
+    var fcv = document.getElementById("f-color").value;
+    var fsv = document.getElementById("f-size").value;
+    if (fcv && !psel.color && p.colors.indexOf(fcv) !== -1) { psel.color = fcv; }
+    if (fsv && !psel.size && p.sizes.indexOf(fsv) !== -1) { psel.size = fsv; }
+    if (psel.color && p.colors.indexOf(psel.color) === -1) { psel.color = ""; }
+    if (psel.size && p.sizes.indexOf(psel.size) === -1) { psel.size = ""; }
+    if (p.colors.length || p.sizes.length) {
+      var opts = document.createElement("div");
+      opts.className = "opts";
+      if (p.sizes.length) { opts.appendChild(optGroup(psel, "المقاس", p.sizes, "size")); }
+      if (p.colors.length) { opts.appendChild(optGroup(psel, "اللون", p.colors, "color")); }
+      card.querySelector(".body").insertBefore(opts, card.querySelector(".add-cart"));
+    }
+    card.querySelector(".add-cart").addEventListener("click", function () { addToCart(p); });
+    if (imgId) {
+      var im = card.querySelector("img");
+      im.src = "/_blob/" + imgId;
+      im.alt = p.name;
+    }
+    if (adminOn) {
+      var tools = document.createElement("div");
+      tools.className = "tools";
+      var lab = document.createElement("label");
+      lab.className = "btn ghost small";
+      lab.htmlFor = "file-" + p.id;
+      lab.textContent = imgId ? "تغيير الصورة" : "رفع صورة";
+      var inp = document.createElement("input");
+      inp.type = "file";
+      inp.accept = "image/*";
+      inp.id = "file-" + p.id;
+      inp.hidden = true;
+      inp.addEventListener("change", function () {
+        if (inp.files && inp.files[0]) { uploadFor(p, inp.files[0]); }
+      });
+      lab.appendChild(inp);
+      tools.appendChild(lab);
+      if (imgId) {
+        var rm = document.createElement("button");
+        rm.type = "button";
+        rm.className = "btn ghost small";
+        rm.textContent = "حذف الصورة";
+        rm.addEventListener("click", function () { removeFor(p); });
+        tools.appendChild(rm);
+      }
+      var ed = document.createElement("button");
+      ed.type = "button";
+      ed.className = "btn ghost small";
+      ed.textContent = "تعديل";
+      ed.addEventListener("click", function () { openForm(p); });
+      tools.appendChild(ed);
+      var del = document.createElement("button");
+      del.type = "button";
+      del.className = "btn ghost small";
+      del.textContent = pendingDelete === p.id ? "تأكيد الحذف" : "حذف القطعة";
+      del.addEventListener("click", function () {
+        if (pendingDelete === p.id) {
+          deleteProduct(p);
+        } else {
+          pendingDelete = p.id;
+          render();
+          setTimeout(function () { if (pendingDelete === p.id) { pendingDelete = null; render(); } }, 4000);
+        }
+      });
+      tools.appendChild(del);
+      card.querySelector(".body").appendChild(tools);
+    }
+    grid.appendChild(card);
+  });
+  if (!grid.children.length) {
+    var none = document.createElement("p");
+    none.className = "cart-empty";
+    none.style.gridColumn = "1 / -1";
+    none.textContent = "ما لقينا قطعة بهالاسم. جرّب كلمة ثانية أو اسأل عبر واتساب.";
+    grid.appendChild(none);
+  }
+}
+document.querySelectorAll(".chip").forEach(function (c) {
+  c.addEventListener("click", function () {
+    document.querySelectorAll(".chip").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+    c.setAttribute("aria-pressed", "true");
+    render(c.getAttribute("data-cat"));
+  });
+});
+var hello = waLink("مرحباً katsar store، بدي أستفسر عن منتجاتكم.");
+document.getElementById("wa-top").href = hello;
+document.getElementById("wa-hero").href = hello;
+document.getElementById("wa-bottom").href = hello;
+buildFilters();
+render("all");
+loadCart();
+renderCart();
+wireCart();
+
+document.getElementById("admin-toggle").addEventListener("click", function () {
+  adminOn = !adminOn;
+  this.textContent = adminOn ? "إنهاء الإدارة" : "إدارة المتجر";
+  document.getElementById("admin-bar").hidden = !adminOn;
+  if (!adminOn) { document.getElementById("product-form").hidden = true; }
+  setStatus(adminOn ? "اضغط «رفع صورة» تحت أي قطعة. الصور بتنضغط تلقائياً قبل الحفظ." : "");
+  render();
+});
+
+(function wireForm() {
+  var sel = document.getElementById("pf-cat");
+  Object.keys(CATNAME).forEach(function (k) {
+    var o = document.createElement("option");
+    o.value = k;
+    o.textContent = CATNAME[k];
+    sel.appendChild(o);
+  });
+  document.getElementById("add-product").addEventListener("click", function () { openForm(null); });
+  sel.addEventListener("change", function () {
+    if (!editingId) {
+      document.getElementById("pf-colors").value = (DEF_COLORS[sel.value] || []).join("، ");
+      document.getElementById("pf-sizes").value = (DEF_SIZES[sel.value] || []).join("، ");
+    }
+  });
+  document.getElementById("pf-cancel").addEventListener("click", function () {
+    document.getElementById("product-form").hidden = true;
+  });
+  document.getElementById("product-form").addEventListener("submit", saveProduct);
+})();
+
+(function initAdmin() {
+  if (!window.claude || !window.claude.use) { return; }
+  window.claude.use("db").then(function (db) {
+    if (!db) { return; }
+    dbApi = db;
+    db.collection("productImages").onSnapshot(function (snap) {
+      var m = {};
+      snap.docs.forEach(function (d) {
+        var v = d.data();
+        if (v && typeof v.assetId === "string") { m[d.id] = v.assetId; }
+      });
+      IMAGES = m;
+      render();
+    }, function () {});
+    db.collection("products").onSnapshot(function (snap) {
+      var m = {};
+      snap.docs.forEach(function (d) {
+        var v = d.data();
+        if (v) { m[d.id] = v; }
+      });
+      OVERRIDES = m;
+      buildFilters();
+      render();
+    }, function () {});
+  }).catch(function () {});
+  window.claude.use("assets").then(function (a) {
+    if (!a) { return; }
+    assetsApi = a;
+    document.getElementById("admin-toggle").hidden = false;
+  }).catch(function () {});
+})();
+</script>
+
+</body></html>
